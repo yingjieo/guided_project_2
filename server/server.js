@@ -1,14 +1,25 @@
-import express from 'express';
-
+import { MongoClient, ObjectId } from 'mongodb';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
-const app = express();
-app.use(cors()); // Enable CORS for all routes
-const PORT = 3000;
+dotenv.config();
+const url = process.env.MONGO_DB_URL;
+const dbName = process.env.MONGO_DB;
+const port = process.env.PORT;
 
-app.use(express.json());
+const app = env();
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.get('/api/planets', async (req, res) => {
+    try {
+        res.json({"Planet": "Mars"});
+        // const client = await MongoClient.connect(url);
+        // const db = client.db(dbName);
+        // const collection = db.collection(collectionName);
+        // const planets = await collection.find({}).toArray();
+        // res.json(planets);
+    } catch (err) {
+        console.error("Error:", err);
+        res.status(500).send("Oops! Got lost in the galaxy somewhere far far away...");
+    }
+
 });
