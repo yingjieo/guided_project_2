@@ -1,3 +1,4 @@
+import express from 'express';
 import { MongoClient, ObjectId } from 'mongodb';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -5,9 +6,9 @@ import cors from 'cors';
 dotenv.config();
 const url = process.env.MONGO_DB_URL;
 const dbName = process.env.MONGO_DB;
-const port = process.env.PORT;
+const PORT = process.env.PORT;
 
-const app = env();
+const app = express();
 
 app.get('/api/planets', async (req, res) => {
     try {
@@ -22,4 +23,8 @@ app.get('/api/planets', async (req, res) => {
         res.status(500).send("Oops! Got lost in the galaxy somewhere far far away...");
     }
 
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
