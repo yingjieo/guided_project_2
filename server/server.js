@@ -61,7 +61,6 @@ app.get('/api/planets/:id/films', async (req, res) => {
 
 });
 
-// api/planets/:id/characters
 app.get('/api/planets/:id/characters', async (req, res) => {
     try {
         let { id } = req.params;
@@ -82,12 +81,8 @@ app.get('/api/planets/:id/characters', async (req, res) => {
         const cursor = coll.aggregate(agg);
         const result = await cursor.toArray();
 
-
-
         await client.close();
         res.json(result);
-
-
 
     } catch (err) {
         console.error("Error:", err);
@@ -96,31 +91,53 @@ app.get('/api/planets/:id/characters', async (req, res) => {
 
 });
 
+app.get('/api/films/:id/planets', async (req, res) => {
+    try {
+        let { id } = req.params;
 
-// api/films/:id/planets
-//was doing some aggreations on compass. Below should work for above route
-const agg = [
-    // {
-    //     '$match': {
-    //         'id': Number(grabbedId)
-    //     }
-    // },
-    {
-        '$lookup': {
-            'from': 'films_planets',
-            'localField': 'id',
-            'foreignField': 'film_id',
-            'as': 'films_planets'
-        }
-    }, {
-        '$lookup': {
-            'from': 'planets',
-            'localField': 'films_planets.planet_id',
-            'foreignField': 'id',
-            'as': 'films_planets'
-        }
+        const client = await MongoClient.connect(url);
+
+        const agg = [
+            {
+                '$match': {
+                    'id': Number(id)
+                }
+            }, {
+                '$lookup': {
+                    'from': 'films_planets',
+                    'localField': 'id',
+                    'foreignField': 'film_id',
+                    'as': 'films_planets'
+                }
+            }, {
+                '$lookup': {
+                    'from': 'planets',
+                    'localField': 'films_planets.planet_id',
+                    'foreignField': 'id',
+                    'as': 'planets_res'
+                }
+            }, {
+                '$project': {
+                    '_id': 0,
+                    'planets_res': 1
+                }
+            }
+        ]
+
+        const collection = client.db(dbName).collection('films');
+        const aggregation = await collection.aggregate(agg).toArray();
+        await client.close();
+        const planets = aggregation[0];
+
+        client.close();
+        res.json(planets["planets_res"]);
+
+    } catch (err) {
+        console.error("Error:", err);
+        res.status(500).send("Oops! Got lost in the galaxy somewhere far far away...");
     }
-];
+
+});
 
 app.get('/api/planets/:id', async (req, res) => {
     try {
