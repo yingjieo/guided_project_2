@@ -1,4 +1,5 @@
 import React from 'react';
+import CharacterPage from './CharacterPage';
 
 
 const Characters = (props) => {
@@ -7,7 +8,8 @@ const Characters = (props) => {
         <>
             {
                 props.data.map((character) => (
-                    <div>{character.name}</div>
+                    <CharacterPage data = {character}  />
+                    
                 ))
             }
         </>
