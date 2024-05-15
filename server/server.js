@@ -23,7 +23,7 @@ app.get('/api/planets/:id/films', async (req, res) => {
         const agg = [
             {
                 '$match': {
-                  'id': Number(id)
+                    'id': Number(id)
                 }
             }, {
                 '$lookup': {
@@ -62,8 +62,65 @@ app.get('/api/planets/:id/films', async (req, res) => {
 });
 
 // api/planets/:id/characters
+app.get('/api/planets/:id/characters', async (req, res) => {
+    try {
+        let { id } = req.params;
+
+
+        const agg = [
+            {
+                '$lookup': {
+                    'from': 'characters',
+                    'localField': 'id',
+                    'foreignField': 'homeworld',
+                    'as': 'characters_homeworld'
+                }
+            }
+        ];
+        const client = await MongoClient.connect(url);
+        const coll = client.db('swapi').collection('planets');
+        const cursor = coll.aggregate(agg);
+        const result = await cursor.toArray();
+
+
+
+        await client.close();
+        res.json(result);
+
+
+
+    } catch (err) {
+        console.error("Error:", err);
+        res.status(500).send("Oops! Got lost in the galaxy somewhere far far away...");
+    }
+
+});
+
 
 // api/films/:id/planets
+//was doing some aggreations on compass. Below should work for above route
+const agg = [
+    // {
+    //     '$match': {
+    //         'id': Number(grabbedId)
+    //     }
+    // },
+    {
+        '$lookup': {
+            'from': 'films_planets',
+            'localField': 'id',
+            'foreignField': 'film_id',
+            'as': 'films_planets'
+        }
+    }, {
+        '$lookup': {
+            'from': 'planets',
+            'localField': 'films_planets.planet_id',
+            'foreignField': 'id',
+            'as': 'films_planets'
+        }
+    }
+];
 
 app.get('/api/planets/:id', async (req, res) => {
     try {
@@ -197,7 +254,7 @@ app.get('/api/characters/:id/films', async (req, res) => {
 
         const db = client.db(dbName);
         const collection = db.collection("characters");
-     
+
 
         //console.log(`GRABBED ID ${grabbedId}`);
 
