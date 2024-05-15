@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import './App.css'
 
 import Characters from "./components/Characters"
+import PlanetPage from "./components/PlanetPage"
+import CharacterPage from './components/CharacterPage'
 
 import {
   BrowserRouter as Router,
@@ -37,8 +39,8 @@ function App() {
         <Routes>
           <Route path='/' element={<Characters data={data} />} />
           <Route path='/films/:id' element={<h1>Films</h1>}/>
-          <Route path='/characters/:id' element={<h1>Characters</h1>}/>
-          <Route path='/planets/:id' element={<h1>Planets</h1>}/>
+          <Route path='/characters/:id' element={<CharacterPage/>}/>
+          <Route path='/planets/:id' element={<PlanetPage/>}/>
         </Routes>
       </Router>
     </div>
