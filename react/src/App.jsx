@@ -3,6 +3,13 @@ import './App.css'
 
 import Characters from "./components/Characters"
 
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Link,
+} from "react-router-dom";
+
 function App() {
   const [data, setData] = useState([]);
 
@@ -26,7 +33,14 @@ function App() {
   return (
     <div>
       <h1>Star Wars Universe Lookup</h1>
-      <Characters data={data} />
+      <Router>
+        <Routes>
+          <Route path='/' element={<Characters data={data} />} />
+          <Route path='/films/:id' element={<h1>Films</h1>}/>
+          <Route path='/characters/:id' element={<h1>Characters</h1>}/>
+          <Route path='/planets/:id' element={<h1>Planets</h1>}/>
+        </Routes>
+      </Router>
     </div>
   )
 }

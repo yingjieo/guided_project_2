@@ -2,11 +2,12 @@ import React from 'react';
 
 
 const Characters = (props) => {
+
     return (
         <>
             {
                 props.data.map((character) => (
-                    <p>{character.name}</p>
+                    <div>{character.name}</div>
                 ))
             }
         </>
