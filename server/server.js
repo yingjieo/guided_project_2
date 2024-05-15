@@ -19,23 +19,11 @@ app.get('/api/planets/:id/films', async (req, res) => {
         let { id } = req.params;
 
         const client = await MongoClient.connect(url);
-        // const db = client.db(dbName);
-        // const collection = db.collection("films_planets");
-
-        // const planets = await collection.find({"planet_id" : Number(id)}).toArray();
-
-        // const filmCollection = db.collection("films");
-        // // const films = await collection.find()
-
-        /*
-         * Requires the MongoDB Node.js Driver
-         * https://mongodb.github.io/node-mongodb-native
-         */
 
         const agg = [
             {
                 '$match': {
-                    'id': 1
+                  'id': Number(id)
                 }
             }, {
                 '$lookup': {
@@ -72,6 +60,10 @@ app.get('/api/planets/:id/films', async (req, res) => {
     }
 
 });
+
+// api/planets/:id/characters
+
+// api/films/:id/planets
 
 app.get('/api/planets/:id', async (req, res) => {
     try {
