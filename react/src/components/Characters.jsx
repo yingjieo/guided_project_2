@@ -3,17 +3,34 @@ import CharacterButton from './CharacterButton';
 
 
 const Characters = (props) => {
+    if (props.frontPage) {
+        return (
+            <section id="charactersList">
+                {
+                    props.data.map((character) => (
+                        <li>
+                            <CharacterButton data={character} />
+                        </li>
 
-    return (
-        <>
-            {
-                props.data.map((character) => (
-                    <CharacterButton data = {character}  />
-                    
-                ))
-            }
-        </>
-    );
+                    ))
+                }
+            </section>
+        );
+    }
+    else {
+        return (
+            <>
+                {
+                    props.data.map((character) => (
+                        <li>
+                            <CharacterButton data={character} />
+                        </li>
+
+                    ))
+                }
+            </>
+        );
+    }
 };
 
 export default Characters;

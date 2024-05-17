@@ -7,7 +7,7 @@ const PlanetButton = (props) => {
 
     return (
         <div>
-        <Link to={link}>{props.data.name}</Link>
+            <Link to={link}>{props.data.name}</Link>
         </div>
     );
 };

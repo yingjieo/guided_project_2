@@ -142,12 +142,45 @@ app.get('/api/films/:id/planets', async (req, res) => {
 
 app.get('/api/planets/:id', async (req, res) => {
     try {
-        let { id } = req.params;
+        // const planets = await collection.find({ "id": Number(id) }).toArray();
+        const agg = [
+            {
+              '$match': {
+                'id': +req.params.id
+              }
+            }, {
+              '$lookup': {
+                'from': 'characters', 
+                'localField': 'id', 
+                'foreignField': 'homeworld', 
+                'as': 'characters'
+              }
+            }, {
+              '$lookup': {
+                'from': 'films_planets', 
+                'localField': 'id', 
+                'foreignField': 'planet_id', 
+                'as': 'planets_films'
+              }
+            }, {
+              '$lookup': {
+                'from': 'films', 
+                'localField': 'planets_films.film_id', 
+                'foreignField': 'id', 
+                'as': 'films'
+              }
+            }, {
+              '$project': {
+                'planets_films': 0
+              }
+            }
+          ];
 
-        const collection = db.collection("planets");
+          const collection = db.collection('planets');
+          const cursor = collection.aggregate(agg);
+          const planets = await cursor.toArray();
 
-        const planets = await collection.find({ "id": Number(id) }).toArray();
-        res.json(planets);
+        res.json(planets[0]);
 
     } catch (err) {
         console.error("Error:", err);
@@ -195,8 +228,6 @@ app.get('/api/characters', async (req, res) => {
 // returns a character + info on their homeworld (an array of size 1) and films (array)
 app.get('/api/characters/:id', async (req, res) => {
     try {
-        const grabbedId = req.params.id;
-
         // const characters = await collection.find({ "id": Number(grabbedId) }).toArray();
 
         const agg = [

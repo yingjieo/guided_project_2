@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
-import Characters from "./components/Characters"
-import PlanetPage from "./components/PlanetPage"
-import CharacterPage from './components/CharacterPage'
+import Characters from './components/Characters';
+import PlanetPage from './components/PlanetPage';
+import CharacterPage from './components/CharacterPage';
+import FilmPage from './components/FilmPage';
+import Home from './components/Home';
 
 import {
   BrowserRouter as Router,
@@ -34,12 +36,13 @@ function App() {
 
   return (
     <div>
+      <Home />
       <h1>Star Wars Universe Lookup</h1>
       <Router>
         <Routes>
-          <Route path='/' element={<Characters data={data} />} />
-          <Route path='/characters' element={<Characters data={data} />} />
-          <Route path='/films/:id' element={<h1>Films</h1>}/>
+          <Route path='/' element={<Characters data={data} frontPage={true}/>} />
+          <Route path='/characters' element={<Characters data={data} frontPage={true}/>} />
+          <Route path='/films/:id' element={<FilmPage />}/>
           <Route path='/characters/:id' element={<CharacterPage />}/>
           <Route path='/planets/:id' element={<PlanetPage />}/>
         </Routes>

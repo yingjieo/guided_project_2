@@ -25,13 +25,6 @@ const CharacterPage = () => {
         fetchData();
     }, []);
 
-    // async function fetchFilms(characterID) {
-    //     const url = `http://localhost:3000/api/characters/${characterID}/films`;
-    //     const films = await fetch(url)
-    //         .then(res => res.json())
-    //     return films;
-    // }
-
 
     // Need to provide default values so it is never undefined
     const homeworld = data?.homeworld || [{}];
@@ -41,18 +34,17 @@ const CharacterPage = () => {
         <>
             <h1 id="name">Name: {data?.name}</h1>
             <section id="generalInfo">
-                <p>Height: {data?.height} cm</p>
-                <p>Mass: {data?.mass} kg</p>
-                <p>Born: {data?.birth_year}</p>
+                <p>Height: <span id="height">{data?.height}</span> cm</p>
+                <p>Mass: <span id="mass">{data?.mass}</span> kg</p>
+                <p>Born: <span id="birth_year">{data?.birth_year}</span></p>
             </section>
             <section id="planets">
                 <h2>Homeworld</h2>
-                <PlanetButton data={homeworld[0]} />
+                <ul><PlanetButton data={homeworld[0]} /></ul>
             </section>
             <section id="films">
-                <h2>Films appeared in</h2>
-                <Films data={films} />
-                <ul></ul>
+                <h2>Films</h2>
+                <ul><Films data={films} /></ul>
             </section>
 
         </>

@@ -8,8 +8,10 @@ const Films = (props) => {
         <>
             {
                 props.data.map((film) => (
-                    <FilmButton data = {film}  />
-                    
+                    <li>
+                        <FilmButton data={film} />
+                    </li>
+
                 ))
             }
         </>
