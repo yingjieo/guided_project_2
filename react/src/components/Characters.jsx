@@ -1,5 +1,4 @@
 import React from 'react';
-import CharacterPage from './CharacterPage';
 import CharacterButton from './CharacterButton';
 
 

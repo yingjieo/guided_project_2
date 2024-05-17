@@ -38,9 +38,10 @@ function App() {
       <Router>
         <Routes>
           <Route path='/' element={<Characters data={data} />} />
+          <Route path='/characters' element={<Characters data={data} />} />
           <Route path='/films/:id' element={<h1>Films</h1>}/>
-          <Route path='/characters/:id' element={<CharacterPage/>}/>
-          <Route path='/planets/:id' element={<PlanetPage/>}/>
+          <Route path='/characters/:id' element={<CharacterPage />}/>
+          <Route path='/planets/:id' element={<PlanetPage />}/>
         </Routes>
       </Router>
     </div>

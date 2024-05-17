@@ -100,12 +100,10 @@ app.get('/api/planets/:id/characters', async (req, res) => {
 
 app.get('/api/films/:id/planets', async (req, res) => {
     try {
-        let { id } = req.params;
-
         const agg = [
             {
                 '$match': {
-                    'id': Number(id)
+                    'id': +req.params.id
                 }
             }, {
                 '$lookup': {
@@ -184,13 +182,8 @@ app.get('/api/films', async (req, res) => {
 
 app.get('/api/characters', async (req, res) => {
     try {
-        const collection = db.collection("characters");
-
-        //console.log(`GRABBED ID ${grabbedId}`);
-
+        const collection = db.collection('characters');
         const characters = await collection.find({}).toArray();
-
-
         res.json(characters);
     } catch (err) {
         console.error("Error:", err);
@@ -199,16 +192,51 @@ app.get('/api/characters', async (req, res) => {
 
 });
 
+// returns a character + info on their homeworld (an array of size 1) and films (array)
 app.get('/api/characters/:id', async (req, res) => {
     try {
         const grabbedId = req.params.id;
 
-        const collection = db.collection("characters");
-        //console.log(`GRABBED ID ${grabbedId}`);
-        const characters = await collection.find({ "id": Number(grabbedId) }).toArray();
+        // const characters = await collection.find({ "id": Number(grabbedId) }).toArray();
 
-        //console.log(films)
-        res.json(characters);
+        const agg = [
+            {
+              '$match': {
+                'id': +req.params.id
+              }
+            }, {
+              '$lookup': {
+                'from': 'planets', 
+                'localField': 'homeworld', 
+                'foreignField': 'id', 
+                'as': 'homeworld'
+              }
+            }, {
+              '$lookup': {
+                'from': 'films_characters', 
+                'localField': 'id', 
+                'foreignField': 'character_id', 
+                'as': 'character_films'
+              }
+            }, {
+              '$lookup': {
+                'from': 'films', 
+                'localField': 'character_films.film_id', 
+                'foreignField': 'id', 
+                'as': 'films'
+              }
+            }, {
+              '$project': {
+                'character_films': 0
+              }
+            }
+          ];
+
+          const collection = db.collection('characters');
+          const cursor = collection.aggregate(agg);
+          const characters = await cursor.toArray();
+
+        res.json(characters[0]);
     } catch (err) {
         console.error("Error:", err);
         res.status(500).send("Oops! Got lost in the galaxy somewhere far far away...");
@@ -218,16 +246,54 @@ app.get('/api/characters/:id', async (req, res) => {
 
 app.get('/api/films/:id', async (req, res) => {
     try {
-        const grabbedId = req.params.id;
+        // const films = await collection.find({ "id": Number(grabbedId) }).toArray();
+
+        const agg = [
+            {
+              '$match': {
+                'id': +req.params.id
+              }
+            }, {
+              '$lookup': {
+                'from': 'films_characters', 
+                'localField': 'id', 
+                'foreignField': 'film_id', 
+                'as': 'characters_films'
+              }
+            }, {
+              '$lookup': {
+                'from': 'characters', 
+                'localField': 'characters_films.character_id', 
+                'foreignField': 'id', 
+                'as': 'characters'
+              }
+            }, {
+              '$lookup': {
+                'from': 'films_planets', 
+                'localField': 'id', 
+                'foreignField': 'film_id', 
+                'as': 'planets_films'
+              }
+            }, {
+              '$lookup': {
+                'from': 'planets', 
+                'localField': 'planets_films.planet_id', 
+                'foreignField': 'id', 
+                'as': 'planets'
+              }
+            }, {
+              '$project': {
+                'characters_films': 0, 
+                'planets_films': 0
+              }
+            }
+          ];
 
         const collection = db.collection("films");
+        const cursor = collection.aggregate(agg);
+        const film = await cursor.toArray(0);
 
-        //console.log(`GRABBED ID ${grabbedId}`);
-
-        const films = await collection.find({ "id": Number(grabbedId) }).toArray();
-
-        console.log(films)
-        res.json(films);
+        res.json(film[0]);
     } catch (err) {
         console.error("Error:", err);
         res.status(500).send("Oops! Got lost in the galaxy somewhere far far away...");
@@ -237,42 +303,38 @@ app.get('/api/films/:id', async (req, res) => {
 
 app.get('/api/characters/:id/films', async (req, res) => {
     try {
-        const grabbedId = req.params.id;
         const agg = [
             {
                 '$match': {
-                    'id': Number(grabbedId)
+                    'id': +req.params.id
                 }
-            },
-            {
+            }, {
                 '$lookup': {
                     'from': 'films_characters',
                     'localField': 'id',
                     'foreignField': 'character_id',
-                    'as': 'films_characters'
+                    'as': 'characters_films'
                 }
             }, {
                 '$lookup': {
                     'from': 'films',
-                    'localField': 'films_characters.film_id',
+                    'localField': 'characters_films.film_id',
                     'foreignField': 'id',
-                    'as': 'films_characters'
+                    'as': 'films_res'
+                }
+            }, {
+                '$project': {
+                    '_id': 0,
+                    'films_res': 1
                 }
             }
-        ];
+        ]
 
-        const collection = db.collection("characters");
+        const collection = db.collection('characters');
+        const aggregation = await collection.aggregate(agg).toArray();
+        const films = aggregation[0];
 
-
-        //console.log(`GRABBED ID ${grabbedId}`);
-
-        const films = await collection.find({ "id": Number(grabbedId) }).toArray();
-
-        const cursor = collection.aggregate(agg);
-        const result = await cursor.toArray();
-
-        console.log(result)
-        res.json(result);
+        res.json(films["films_res"]);
     } catch (err) {
         console.error("Error:", err);
         res.status(500).send("Oops! Got lost in the galaxy somewhere far far away...");
@@ -282,40 +344,38 @@ app.get('/api/characters/:id/films', async (req, res) => {
 
 app.get('/api/films/:id/characters', async (req, res) => {
     try {
-        const grabbedId = req.params.id;
-
         const agg = [
             {
                 '$match': {
-                    'id': Number(grabbedId)
+                    'id': +req.params.id
                 }
-            },
-            {
+            }, {
                 '$lookup': {
                     'from': 'films_characters',
                     'localField': 'id',
                     'foreignField': 'film_id',
                     'as': 'films_characters'
                 }
-            },
-            {
+            }, {
                 '$lookup': {
                     'from': 'characters',
                     'localField': 'films_characters.character_id',
                     'foreignField': 'id',
-                    'as': 'films_characters'
-
+                    'as': 'characters_res'
                 }
-            },
-        ];
+            }, {
+                '$project': {
+                    '_id': 0,
+                    'characters_res': 1
+                }
+            }
+        ]
 
         const collection = db.collection('films');
-        const cursor = collection.aggregate(agg);
-        const result = await cursor.toArray();
+        const aggregation = await collection.aggregate(agg).toArray();
+        const characters = aggregation[0];
 
-        res.json(result);
-        //res.json(finalResult);
-
+        res.json(characters["characters_res"]);
 
     } catch (err) {
         console.error("Error:", err);
